@@ -37,7 +37,6 @@ public enum LocalCache {
     /**
      * 读缓存
      */
-    @SuppressWarnings("unchecked")
     public Map.Entry<Integer, Integer> queryFansNum(Integer roomId) {
         Integer ret = 0;
         try {
@@ -54,26 +53,30 @@ public enum LocalCache {
                     } catch (Exception ignored) {
                     }
                 }
-
-                // 如果距上次房间更新时间较长，则重新抓取房间
-                // 如果数据库里没有该房间，则从网页抓取，并保存到数据库
-                room = WebFetcher.parseJson(new HttpUtil(Constants.HTTP_API_ROOM + roomId).call());
-                if (room == null) {
-                    return 0;
-                }
-                // 保存到数据库
-                MysqlUtil.putRoom(room);
-
-                // 解析礼物
-                List<Map<String, Object>> giftList = (List<Map<String, Object>>) room.get("gift");
-                setGift(giftList);
                 logger.debug("Room cache NOT hit, query through html: " + roomId);
-                return FormatterUtil.parseInt(room.get("fans_num"));
+                return queryRoomJson(roomId);
             });
         } catch (ExecutionException e) {
             logger.error(e);
         }
         return new AbstractMap.SimpleEntry<>(roomId, ret);
+    }
+
+    public Integer queryRoomJson(Integer roomId) {
+        // 如果距上次房间更新时间较长，则重新抓取房间
+        // 如果数据库里没有该房间，则从网页抓取，并保存到数据库
+        Map<String, Object> room = WebFetcher.parseJson(new HttpUtil(Constants.HTTP_API_ROOM + roomId).call());
+        if (room == null) {
+            return 0;
+        }
+        // 保存到数据库
+        MysqlUtil.putRoom(room);
+
+        // 解析礼物
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> giftList = (List<Map<String, Object>>) room.get("gift");
+        setGift(giftList);
+        return FormatterUtil.parseInt(room.get("fans_num"));
     }
 
     public Map<String, Object> getGift(Integer giftId) {

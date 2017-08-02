@@ -11,6 +11,8 @@ public class RedisKeys {
 
     public static final String DOUYU_SYSTEM_MESSAGE_QUEUE = "douyu:system:message:queue";
 
+    public static final String DOUYU_SYSTEM_MESSAGE_PROCESSED_RATE = "douyu:system:message:processed:rate";
+
     public static final String DOUYU_DETAIL_ANCHOR_PREFIX = "douyu:detail:anchor:";
 
     public static final String DOUYU_RANK_ANCHOR_MSG_COUNT_PREFIX = "douyu:rank:anchor:chatmsg:count:";

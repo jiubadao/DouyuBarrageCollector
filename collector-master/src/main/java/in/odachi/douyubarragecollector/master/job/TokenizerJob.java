@@ -29,7 +29,6 @@ public class TokenizerJob implements Job {
     @Loggable
     public void execute(JobExecutionContext context) throws JobExecutionException {
         MasterUtil.getListenedRoomIds().forEach(this::putTokenizerData);
-        putTokenizerData(0);
         // 清理已下线的房间
         TokenizerCollection.clearOfflineMap();
     }

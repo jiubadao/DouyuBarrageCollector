@@ -10,8 +10,10 @@ import in.odachi.douyubarragecollector.util.LogUtil;
 import in.odachi.douyubarragecollector.util.PacketUtil;
 import in.odachi.douyubarragecollector.util.RedisUtil;
 import org.apache.log4j.Logger;
+import org.redisson.api.RScoredSortedSet;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -85,20 +87,44 @@ public class Consumer extends Thread {
      */
     private void startWatcherThread() {
         watcherThread = new Thread(() -> {
+            RScoredSortedSet<String> scoredSortedSet = RedisUtil.client.getScoredSortedSet(RedisKeys.DOUYU_SYSTEM_MESSAGE_PROCESSED_RATE);
+            int modIndex = 0;
+            double reportRate = 0;
             while (!Thread.currentThread().isInterrupted()) {
-                String processedPartRate = String.format("%.0f", processedPartCount.getAndSet(0) /
-                        (double) Constants.WATCHER_SLEEP_TIME * 60 * 1000);
-                String processedTotalRate = String.format("%.0f", processedTotalCount.getAndSet(0) /
-                        (double) Constants.WATCHER_SLEEP_TIME * 60 * 1000);
+                long start = System.currentTimeMillis();
+                double processedTotalRate = processedTotalCount.getAndSet(0) /
+                        (double) Constants.WATCHER_SLEEP_TIME * 60 * 1000;
+                double processedPartRate = processedPartCount.getAndSet(0) /
+                        (double) Constants.WATCHER_SLEEP_TIME * 60 * 1000;
+                String processedTotalRateStr = String.format("%.0f", processedTotalRate);
+                String processedPartRateStr = String.format("%.0f", processedPartRate);
+
+                reportRate += processedTotalRate;
+                if (modIndex % Constants.PROCESSED_RATE_REPORT_GAP == 0) {
+                    // 保存到数据库
+                    long timeMillis = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+                    scoredSortedSet.add(timeMillis, String.format("%.0f", reportRate / Constants.PROCESSED_RATE_REPORT_GAP) + ":" + timeMillis);
+                    // 保留最近的PROCESSED_RATE_KEEP_DAYS个数据
+                    int indexDel = scoredSortedSet.size() - Constants.PROCESSED_RATE_KEEP_DAYS - 1;
+                    if (indexDel >= 0) {
+                        scoredSortedSet.removeRangeByRank(0, indexDel);
+                    }
+                    reportRate = 0;
+                }
+                modIndex++;
 
                 // 拼接输出字符串
                 String builder = "Statistics, " + "barrage queue: " + queue.size() + ", " +
-                        "processed total rate: " + processedTotalRate + "/minute, " +
-                        "processed msg rate: " + processedPartRate + "/minute";
+                        "processed total rate: " + processedTotalRateStr + "/minute, " +
+                        "processed msg rate: " + processedPartRateStr + "/minute";
                 logger.info(builder);
 
                 try {
-                    Thread.sleep(Constants.WATCHER_SLEEP_TIME);
+                    long cost = (System.currentTimeMillis() - start);
+                    long sleepTime = Constants.WATCHER_SLEEP_TIME - cost;
+                    if (sleepTime > 0) {
+                        Thread.sleep(Constants.WATCHER_SLEEP_TIME);
+                    }
                 } catch (InterruptedException e) {
                     break;
                 }

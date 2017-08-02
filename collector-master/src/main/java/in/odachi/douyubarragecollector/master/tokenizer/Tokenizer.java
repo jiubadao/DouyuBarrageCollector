@@ -31,12 +31,7 @@ public class Tokenizer {
             if (StringUtils.isNotBlank(term.word) && !term.nature.startsWith("w") &&
                     (term.nature != Nature.nz || NumberUtils.isNumber(term.word))) {
                 TokenizerCollection.getTokenizerMap(roomId).compute(term.word, (k, v) -> v == null ? 1 : v + 1);
-                TokenizerCollection.getTokenizerMap(0).compute(term.word, (k, v) -> v == null ? 1 : v + 1);
             }
         });
-    }
-
-    public static void main(String[] args) {
-        segment(0, "今天是666个�好日子[]? 【】？");
     }
 }

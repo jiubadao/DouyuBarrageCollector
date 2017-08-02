@@ -19,8 +19,7 @@ public class TokenizerCollection {
      * 获取指定房间的分词容器
      */
     public static Map<String, Double> getTokenizerMap(Integer roomId) {
-        tokenizerMap.computeIfAbsent(roomId, k -> new ConcurrentHashMap<>());
-        return tokenizerMap.get(roomId);
+        return tokenizerMap.computeIfAbsent(roomId, k -> new ConcurrentHashMap<>());
     }
 
     /**

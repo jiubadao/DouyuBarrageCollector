@@ -43,7 +43,7 @@ public class Ranking {
             RankingCollection.giftPriceMap.compute(roomId, (k, v) -> v == null ? price : v + price);
         } else {
             logger.error("Gift NOT found, trying query from json: " + gId + ", roomId: " + roomId);
-            MasterUtil.parseGift(roomId);
+            LocalCache.INSTANCE.queryRoomJson(roomId);
         }
     }
 

@@ -35,6 +35,12 @@ public class Constants {
     // 统计数据保留的历史天数
     public static final int REDIS_DATA_KEEP_DAYS = 60;
 
+    // 消息实时处理速率数据保留分钟数
+    public static final int PROCESSED_RATE_KEEP_DAYS = 576;
+
+    // 消息实时处理速率数据保留分钟数
+    public static final int PROCESSED_RATE_REPORT_GAP = 5;
+
     // 统计线程休息时间
     public static final long WATCHER_SLEEP_TIME = 60 * 1000L;
 
@@ -43,9 +49,6 @@ public class Constants {
 
     // 配置文件路径
     public static final String CONF_FILE_NAME = "conf/barrage.properties";
-
-    // 配置文件路径
-    public static final String STOPWORD_FILE_NAME = "conf/stopword.dic";
 
     // 日期格式
     public static final String DATE_PATTERN = "yyyyMMdd";
