@@ -14,7 +14,6 @@ import org.redisson.api.RScoredSortedSet;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -30,30 +29,27 @@ public class TokenizerJob implements Job {
     public void execute(JobExecutionContext context) throws JobExecutionException {
         MasterUtil.getListenedRoomIds().forEach(this::putTokenizerData);
         // 清理已下线的房间
-        TokenizerCollection.clearOfflineMap();
+        TokenizerCollection.INSTANCE.clearOfflineMap();
     }
 
     private void putTokenizerData(Integer roomId) {
         Map<Integer, String> lastUpdateTimeMap = RedisUtil.client.getMap(RedisKeys.DOUYU_ANALYSIS_KEYWORD_LAST_UPDATE_TIME);
-        Map<String, Double> localMap = new HashMap<>(TokenizerCollection.getTokenizerMap(roomId));
-        TokenizerCollection.getTokenizerMap(roomId).clear();
-        if (localMap.size() > 0) {
-            lastUpdateTimeMap.put(roomId, LocalDateTime.now().format(minuteFormatter));
-            putIntoSlots(roomId, localMap);
-        }
+        Map<String, Double> localMap = TokenizerCollection.INSTANCE.copyAndClearTokenizerMap(roomId);
+        lastUpdateTimeMap.put(roomId, LocalDateTime.now().format(minuteFormatter));
+        putIntoSlots(roomId, localMap);
     }
 
     private void putIntoSlots(Integer roomId, Map<String, Double> localMap) {
-        TokenizerCollection.getSlots(1, roomId).putIntoSlots(localMap);
-        TokenizerCollection.getSlots(12, roomId).putIntoSlots(localMap);
-        putData(1, roomId);
-        putData(12, roomId);
+        TokenizerCollection.INSTANCE.getSlots(1, roomId).putIntoSlots(localMap);
+        TokenizerCollection.INSTANCE.getSlots(12, roomId).putIntoSlots(localMap);
+        cacheToRedis(1, roomId);
+        cacheToRedis(12, roomId);
     }
 
-    private void putData(int size, Integer roomId) {
+    private void cacheToRedis(int size, Integer roomId) {
         String keyCache = RedisKeys.DOUYU_ANALYSIS_KEYWORD_MINUTE_PREFIX + size + ":" + roomId;
         RScoredSortedSet<String> cacheMinute = RedisUtil.client.getScoredSortedSet(keyCache);
         cacheMinute.clear();
-        TokenizerCollection.getSlots(size, roomId).queryTopWords().forEach((k, v) -> cacheMinute.add(v, k));
+        TokenizerCollection.INSTANCE.getSlots(size, roomId).queryTopWords().forEach((k, v) -> cacheMinute.add(v, k));
     }
 }

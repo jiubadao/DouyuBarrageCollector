@@ -1,7 +1,5 @@
 package in.odachi.douyubarragecollector.master.tokenizer;
 
-import org.apache.log4j.Logger;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

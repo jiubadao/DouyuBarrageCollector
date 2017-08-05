@@ -34,6 +34,13 @@ public class ExecutorPool {
     }
 
     /**
+     * 提交普通任务
+     */
+    public static void submit(Runnable task) {
+        executor.submit(task);
+    }
+
+    /**
      * 关闭线程池
      */
     public static void shutdown() {

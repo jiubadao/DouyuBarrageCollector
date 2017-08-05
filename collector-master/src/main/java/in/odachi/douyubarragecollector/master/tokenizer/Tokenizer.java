@@ -26,11 +26,11 @@ public class Tokenizer {
      */
     public static void segment(Integer roomId, String sentence) {
         List<Term> termList = segment.seg(sentence);
-        CoreStopWordDictionary.apply(termList);
         termList.forEach(term -> {
             if (StringUtils.isNotBlank(term.word) && !term.nature.startsWith("w") &&
+                    CoreStopWordDictionary.shouldInclude(term) &&
                     (term.nature != Nature.nz || NumberUtils.isNumber(term.word))) {
-                TokenizerCollection.getTokenizerMap(roomId).compute(term.word, (k, v) -> v == null ? 1 : v + 1);
+                TokenizerCollection.INSTANCE.getTokenizerMap(roomId).compute(term.word, (k, v) -> v == null ? 1 : v + 1);
             }
         });
     }
