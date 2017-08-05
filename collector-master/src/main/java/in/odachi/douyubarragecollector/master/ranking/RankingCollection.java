@@ -142,7 +142,7 @@ public enum  RankingCollection {
      */
     public void computeAndClearMsgCount() {
         Map<Integer, Double> resultMap = new HashMap<>();
-        msgCountMap.keySet().forEach(roomId -> resultMap.put(roomId, msgCountMap.replace(roomId, null)));
+        msgCountMap.keySet().forEach(roomId -> resultMap.put(roomId, msgCountMap.replace(roomId, 0d)));
         msgCountSlots5.putIntoSlots(resultMap);
         msgCountSlots60.putIntoSlots(resultMap);
         resultMap.forEach((key, value) -> msgCountToday.compute(key, (k, v) -> v == null ? value : v + value));
@@ -153,7 +153,7 @@ public enum  RankingCollection {
      */
     public void computeAndClearMsgUser() {
         Map<Integer, Double> resultMap = new HashMap<>();
-        msgUserMap.keySet().forEach(roomId -> resultMap.put(roomId, (double) msgUserMap.replace(roomId, null).size()));
+        msgUserMap.keySet().forEach(roomId -> resultMap.put(roomId, (double) msgUserMap.replace(roomId, new HashSet<>()).size()));
         msgUserSlots5.putIntoSlots(resultMap);
         msgUserSlots60.putIntoSlots(resultMap);
         resultMap.forEach((key, value) -> msgUserToday.compute(key, (k, v) -> v == null ? value : v + value));
@@ -164,7 +164,7 @@ public enum  RankingCollection {
      */
     public void computeAndClearGiftCount() {
         Map<Integer, Double> resultMap = new HashMap<>();
-        giftCountMap.keySet().forEach(roomId -> resultMap.put(roomId, giftCountMap.replace(roomId, null)));
+        giftCountMap.keySet().forEach(roomId -> resultMap.put(roomId, giftCountMap.replace(roomId, 0d)));
         giftCountSlots5.putIntoSlots(resultMap);
         giftCountSlots60.putIntoSlots(resultMap);
         resultMap.forEach((key, value) -> giftCountToday.compute(key, (k, v) -> v == null ? value : v + value));
@@ -175,7 +175,7 @@ public enum  RankingCollection {
      */
     public void computeAndClearGiftUser() {
         Map<Integer, Double> resultMap = new HashMap<>();
-        giftUserMap.keySet().forEach(roomId -> resultMap.put(roomId, (double) giftUserMap.replace(roomId, null).size()));
+        giftUserMap.keySet().forEach(roomId -> resultMap.put(roomId, (double) giftUserMap.replace(roomId, new HashSet<>()).size()));
         giftUserSlots5.putIntoSlots(resultMap);
         giftUserSlots60.putIntoSlots(resultMap);
         resultMap.forEach((key, value) -> giftUserToday.compute(key, (k, v) -> v == null ? value : v + value));
@@ -187,7 +187,7 @@ public enum  RankingCollection {
     public void computeAndClearGiftPrice() {
         Map<Integer, Double> giftPriceMap = new HashMap<>();
         giftTypeMap.keySet().forEach(roomId -> {
-            Map<Integer, Integer> types =  giftTypeMap.replace(roomId, null);
+            Map<Integer, Integer> types =  giftTypeMap.replace(roomId, new ConcurrentHashMap<>());
             types.forEach((giftId, count) -> {
                 Map<String, Object> giftMap = LocalCache.INSTANCE.getGift(giftId);
                 if (giftMap.size() > 0) {
@@ -199,7 +199,6 @@ public enum  RankingCollection {
                     ExecutorPool.submit(() -> LocalCache.INSTANCE.queryRoomJson(roomId));
                 }
             });
-            // TODO: 保存每天的礼物
         });
         giftPriceSlots5.putIntoSlots(giftPriceMap);
         giftPriceSlots60.putIntoSlots(giftPriceMap);

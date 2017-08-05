@@ -31,7 +31,7 @@ public enum  TokenizerCollection {
     public Map<String, Double> copyAndClearTokenizerMap(Integer roomId) {
         Map<String, Double> resultMap = new HashMap<>();
         Map<String, Double> mapTemp = tokenizerMap.compute(roomId, (k, v) -> v == null ? new ConcurrentHashMap<>() : v);
-        mapTemp.keySet().forEach(rId -> resultMap.put(rId, mapTemp.replace(rId, null)));
+        mapTemp.keySet().forEach(rId -> resultMap.put(rId, mapTemp.replace(rId, 0d)));
         return resultMap;
     }
 
