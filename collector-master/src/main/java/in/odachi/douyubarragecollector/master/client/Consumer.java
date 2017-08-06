@@ -120,10 +120,9 @@ public class Consumer extends Thread {
                 logger.info(builder);
 
                 try {
-                    long cost = (System.currentTimeMillis() - start);
-                    long sleepTime = Constants.WATCHER_SLEEP_TIME - cost;
+                    long sleepTime = Constants.WATCHER_SLEEP_TIME - ((System.currentTimeMillis() - start));
                     if (sleepTime > 0) {
-                        Thread.sleep(Constants.WATCHER_SLEEP_TIME);
+                        Thread.sleep(sleepTime);
                     }
                 } catch (InterruptedException e) {
                     break;

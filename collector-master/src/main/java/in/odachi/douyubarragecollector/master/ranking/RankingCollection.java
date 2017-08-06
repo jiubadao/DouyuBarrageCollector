@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public enum  RankingCollection {
+public enum RankingCollection {
     // 单例模式
     INSTANCE;
 
@@ -86,7 +86,11 @@ public enum  RankingCollection {
      * 新增一个消息数量
      */
     public void incrementMsgUser(Integer roomId, Integer userId) {
-        msgUserMap.compute(roomId, (k, v) -> {
+        incrementMsgUser(msgUserMap, roomId, userId);
+    }
+
+    private void incrementMsgUser(Map<Integer, Set<Integer>> userMap, Integer roomId, Integer userId) {
+        userMap.compute(roomId, (k, v) -> {
             if (v == null) {
                 Set<Integer> userSet = new HashSet<>();
                 userSet.add(userId);
@@ -109,16 +113,7 @@ public enum  RankingCollection {
      * 新增一个礼物数量
      */
     public void incrementGiftUser(Integer roomId, Integer userId) {
-        giftUserMap.compute(roomId, (k, v) -> {
-            if (v == null) {
-                Set<Integer> userSet = new HashSet<>();
-                userSet.add(userId);
-                return userSet;
-            } else {
-                v.add(userId);
-                return v;
-            }
-        });
+        incrementMsgUser(giftUserMap, roomId, userId);
     }
 
     /**
@@ -187,7 +182,7 @@ public enum  RankingCollection {
     public void computeAndClearGiftPrice() {
         Map<Integer, Double> giftPriceMap = new HashMap<>();
         giftTypeMap.keySet().forEach(roomId -> {
-            Map<Integer, Integer> types =  giftTypeMap.replace(roomId, new ConcurrentHashMap<>());
+            Map<Integer, Integer> types = giftTypeMap.replace(roomId, new ConcurrentHashMap<>());
             types.forEach((giftId, count) -> {
                 Map<String, Object> giftMap = LocalCache.INSTANCE.getGift(giftId);
                 if (giftMap.size() > 0) {
@@ -260,21 +255,13 @@ public enum  RankingCollection {
     /**
      * 另存为历史周期数据
      */
-    private void saveAndClearHistoryData(Map<Integer, ?> dataMap, String rankKeyPrefix, String hashKey) {
+    private void saveAndClearHistoryData(Map<Integer, Double> dataToday, String rankKeyPrefix, String hashKey) {
         String yesterday = LocalDate.now().minusDays(1).format(dateFormatter);
         String rankKey = rankKeyPrefix + yesterday;
         RScoredSortedSet<Integer> scoredSortedSet = RedisUtil.client.getScoredSortedSet(rankKey);
         scoredSortedSet.clear();
-        dataMap.keySet().forEach(roomId -> {
-            Object obj = dataMap.replace(roomId, null);
-            double score = 0;
-            if (obj instanceof Double) {
-                score = (Double) obj;
-            } else if (obj instanceof Set) {
-                score = (double) ((Set) obj).size();
-            } else {
-                logger.error("Found obj instanceof nothing");
-            }
+        dataToday.keySet().forEach(roomId -> {
+            double score = dataToday.replace(roomId, 0d);
             scoredSortedSet.add(score, roomId);
             String detailKey = RedisKeys.DOUYU_DETAIL_ANCHOR_PREFIX + roomId + ":" + yesterday;
             RedisUtil.client.getMap(detailKey).put(hashKey, score);
