@@ -33,7 +33,7 @@ public class Constants {
     public static final int CONNECTION_LIMIT_PER_HOST = 200;
 
     // 统计数据保留的历史天数
-    public static final int REDIS_DATA_KEEP_DAYS = 60;
+    public static final int REDIS_DATA_KEEP_DAYS = 30;
 
     // 消息实时处理速率数据保留分钟数
     public static final int PROCESSED_RATE_KEEP_DAYS = 576;

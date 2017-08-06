@@ -9,6 +9,7 @@ import in.odachi.douyubarragecollector.util.FormatterUtil;
 import in.odachi.douyubarragecollector.util.LogUtil;
 import in.odachi.douyubarragecollector.util.PacketUtil;
 import in.odachi.douyubarragecollector.util.RedisUtil;
+import javafx.geometry.VPos;
 import org.apache.log4j.Logger;
 import org.redisson.api.RScoredSortedSet;
 
@@ -77,8 +78,6 @@ public class Consumer extends Thread {
                 logger.error(LogUtil.printStackTrace(e));
             }
         }
-        // 中断监视线程
-        watcherThread.interrupt();
         logger.error(Thread.currentThread().getName() + " has exited.");
     }
 
@@ -134,15 +133,25 @@ public class Consumer extends Thread {
     }
 
     /**
+     * 中断统计线程
+     */
+    public void interruptThread() {
+        // 中断IO线程
+        interrupt();
+        // 中断监视线程
+        watcherThread.interrupt();
+    }
+
+    /**
      * 所有选择器线程是否已经终止
      */
     public boolean isTerminated() {
-        if (watcherThread.getState() != Thread.State.TERMINATED) {
-            logger.error("watcherThread is NOT TERMINATED.");
-            return false;
-        }
         if (getState() != Thread.State.TERMINATED) {
             logger.error(getName() + " is NOT TERMINATED.");
+            return false;
+        }
+        if (watcherThread.getState() != Thread.State.TERMINATED) {
+            logger.error("watcherThread is NOT TERMINATED.");
             return false;
         }
         return true;

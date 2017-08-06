@@ -25,8 +25,8 @@ public class Master {
                 new Thread(() -> {
                     logger.info("Exit signal is received, program will exit.");
                     new Thread(() -> {
-                        // 中断IO线程
-                        consumer.interrupt();
+                        // 中断监视线程
+                        consumer.interruptThread();
                         // 结束线程池
                         ExecutorPool.shutdown();
                     }).start();
