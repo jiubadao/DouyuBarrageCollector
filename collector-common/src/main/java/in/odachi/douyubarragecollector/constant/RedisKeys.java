@@ -47,14 +47,6 @@ public class RedisKeys {
 
     public static final String DOUYU_RANK_ANCHOR_CHATMSG_USER_MINUTE_60 = "douyu:rank:anchor:chatmsg:user:minute:60";
 
-    public static final String DOUYU_RANK_ANCHOR_CHATMSG_COUNT_TODAY = "douyu:rank:anchor:chatmsg:count:today";
-
-    public static final String DOUYU_RANK_ANCHOR_CHATMSG_USER_TODAY = "douyu:rank:anchor:chatmsg:user:today";
-
-    public static final String DOUYU_RANK_ANCHOR_CHATMSG_COUNT_TODAY_SLOT = "douyu:rank:anchor:chatmsg:count:today:slot";
-
-    public static final String DOUYU_RANK_ANCHOR_CHATMSG_USER_TODAY_SLOT = "douyu:rank:anchor:chatmsg:user:today:slot";
-
     public static final String DOUYU_RANK_ANCHOR_DGB_COUNT_MINUTE_5 = "douyu:rank:anchor:dgb:count:minute:5";
 
     public static final String DOUYU_RANK_ANCHOR_DGB_COUNT_MINUTE_60 = "douyu:rank:anchor:dgb:count:minute:60";
@@ -66,18 +58,6 @@ public class RedisKeys {
     public static final String DOUYU_RANK_ANCHOR_DGB_PRICE_MINUTE_5 = "douyu:rank:anchor:dgb:price:minute:5";
 
     public static final String DOUYU_RANK_ANCHOR_DGB_PRICE_MINUTE_60 = "douyu:rank:anchor:dgb:price:minute:60";
-
-    public static final String DOUYU_RANK_ANCHOR_DGB_COUNT_TODAY = "douyu:rank:anchor:dgb:count:today";
-
-    public static final String DOUYU_RANK_ANCHOR_DGB_USER_TODAY = "douyu:rank:anchor:dgb:user:today";
-
-    public static final String DOUYU_RANK_ANCHOR_DGB_PRICE_TODAY = "douyu:rank:anchor:dgb:price:today";
-
-    public static final String DOUYU_RANK_ANCHOR_DGB_COUNT_TODAY_SLOT = "douyu:rank:anchor:dgb:count:today:slot";
-
-    public static final String DOUYU_RANK_ANCHOR_DGB_USER_TODAY_SLOT = "douyu:rank:anchor:dgb:user:today:slot";
-
-    public static final String DOUYU_RANK_ANCHOR_DGB_PRICE_TODAY_SLOT = "douyu:rank:anchor:dgb:price:today:slot";
 
     public static final String DOUYU_ONLINE_ANCHOR_PREFIX = "douyu:online:anchor:";
 }
