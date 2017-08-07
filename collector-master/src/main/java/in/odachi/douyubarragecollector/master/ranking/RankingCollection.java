@@ -2,7 +2,6 @@ package in.odachi.douyubarragecollector.master.ranking;
 
 import in.odachi.douyubarragecollector.constant.Constants;
 import in.odachi.douyubarragecollector.constant.RedisKeys;
-import in.odachi.douyubarragecollector.master.client.ExecutorPool;
 import in.odachi.douyubarragecollector.master.client.LocalCache;
 import in.odachi.douyubarragecollector.util.FormatterUtil;
 import in.odachi.douyubarragecollector.util.RedisUtil;
@@ -132,7 +131,7 @@ public enum RankingCollection {
         msgCountSlots60.putIntoSlots(resultMap);
         cacheToRedis(RedisKeys.DOUYU_RANK_ANCHOR_CHATMSG_COUNT_MINUTE_5, msgCountSlots5);
         cacheToRedis(RedisKeys.DOUYU_RANK_ANCHOR_CHATMSG_COUNT_MINUTE_60, msgCountSlots60);
-        saveAndClearData(resultMap, RedisKeys.DOUYU_RANK_ANCHOR_MSG_COUNT_PREFIX, RedisKeys.SUB_MSG_COUNT);
+        cacheToRedisDaily(resultMap, RedisKeys.DOUYU_RANK_ANCHOR_MSG_COUNT_PREFIX, RedisKeys.SUB_MSG_COUNT);
     }
 
     /**
@@ -145,7 +144,7 @@ public enum RankingCollection {
         msgUserSlots60.putIntoSlots(resultMap);
         cacheToRedis(RedisKeys.DOUYU_RANK_ANCHOR_CHATMSG_USER_MINUTE_5, msgUserSlots5);
         cacheToRedis(RedisKeys.DOUYU_RANK_ANCHOR_CHATMSG_USER_MINUTE_60, msgUserSlots60);
-        saveAndClearData(resultMap, RedisKeys.DOUYU_RANK_ANCHOR_MSG_USER_PREFIX, RedisKeys.SUB_MSG_USER);
+        cacheToRedisDaily(resultMap, RedisKeys.DOUYU_RANK_ANCHOR_MSG_USER_PREFIX, RedisKeys.SUB_MSG_USER);
     }
 
     /**
@@ -158,7 +157,7 @@ public enum RankingCollection {
         giftCountSlots60.putIntoSlots(resultMap);
         cacheToRedis(RedisKeys.DOUYU_RANK_ANCHOR_DGB_COUNT_MINUTE_5, giftCountSlots5);
         cacheToRedis(RedisKeys.DOUYU_RANK_ANCHOR_DGB_COUNT_MINUTE_60, giftCountSlots60);
-        saveAndClearData(resultMap, RedisKeys.DOUYU_RANK_ANCHOR_DGB_COUNT_PREFIX, RedisKeys.SUB_DGB_COUNT);
+        cacheToRedisDaily(resultMap, RedisKeys.DOUYU_RANK_ANCHOR_DGB_COUNT_PREFIX, RedisKeys.SUB_DGB_COUNT);
     }
 
     /**
@@ -171,7 +170,7 @@ public enum RankingCollection {
         giftUserSlots60.putIntoSlots(resultMap);
         cacheToRedis(RedisKeys.DOUYU_RANK_ANCHOR_DGB_USER_MINUTE_5, giftUserSlots5);
         cacheToRedis(RedisKeys.DOUYU_RANK_ANCHOR_DGB_USER_MINUTE_60, giftUserSlots60);
-        saveAndClearData(resultMap, RedisKeys.DOUYU_RANK_ANCHOR_DGB_USER_PREFIX, RedisKeys.SUB_DGB_USER);
+        cacheToRedisDaily(resultMap, RedisKeys.DOUYU_RANK_ANCHOR_DGB_USER_PREFIX, RedisKeys.SUB_DGB_USER);
     }
 
     /**
@@ -183,13 +182,17 @@ public enum RankingCollection {
             Map<Integer, Integer> typeMap = giftTypeMap.replace(roomId, new ConcurrentHashMap<>());
             typeMap.forEach((giftId, count) -> {
                 Map<String, Object> giftMap = LocalCache.INSTANCE.getGift(giftId);
+                if (giftMap.size() <= 0) {
+                    // 如果礼物未发现，则先尝试获取礼物
+                    LocalCache.INSTANCE.queryRoomJson(roomId);
+                    giftMap = LocalCache.INSTANCE.getGift(giftId);
+                }
                 if (giftMap.size() > 0) {
                     Integer type = FormatterUtil.parseInt(giftMap.get("type"));
                     Double price = FormatterUtil.parseInt(giftMap.get("pc")) * ((type == 2) ? 1 : 0.001);
                     giftPriceMap.compute(roomId, (k, v) -> v == null ? price : v + price);
                 } else {
                     logger.error("Gift NOT found, trying query from room json: " + giftId + ", roomId: " + roomId);
-                    ExecutorPool.submit(() -> LocalCache.INSTANCE.queryRoomJson(roomId));
                 }
             });
         });
@@ -197,7 +200,7 @@ public enum RankingCollection {
         giftPriceSlots60.putIntoSlots(giftPriceMap);
         cacheToRedis(RedisKeys.DOUYU_RANK_ANCHOR_DGB_PRICE_MINUTE_5, giftPriceSlots5);
         cacheToRedis(RedisKeys.DOUYU_RANK_ANCHOR_DGB_PRICE_MINUTE_60, giftPriceSlots60);
-        saveAndClearData(giftPriceMap, RedisKeys.DOUYU_RANK_ANCHOR_DGB_PRICE_PREFIX, RedisKeys.SUB_DGB_PRICE);
+        cacheToRedisDaily(giftPriceMap, RedisKeys.DOUYU_RANK_ANCHOR_DGB_PRICE_PREFIX, RedisKeys.SUB_DGB_PRICE);
     }
 
     /**
@@ -212,17 +215,16 @@ public enum RankingCollection {
     /**
      * 另存为历史周期数据
      */
-    private void saveAndClearData(Map<Integer, Double> dataToday, String rankKeyPrefix, String hashKey) {
+    private void cacheToRedisDaily(Map<Integer, Double> dataToday, String rankKeyPrefix, String hashKey) {
         String today = LocalDate.now().format(dateFormatter);
         String rankKey = rankKeyPrefix + today;
         RScoredSortedSet<Integer> scoredSortedSet = RedisUtil.client.getScoredSortedSet(rankKey);
         scoredSortedSet.clear();
         dataToday.keySet().forEach(roomId -> {
-            double score = dataToday.get(roomId);
-            scoredSortedSet.add(score, roomId);
             String detailKey = RedisKeys.DOUYU_DETAIL_ANCHOR_PREFIX + roomId + ":" + today;
             Map<String, Double> detailMap = RedisUtil.client.getMap(detailKey);
-            detailMap.compute(hashKey, (k, v) -> v == null ? score : v + score);
+            Double score = detailMap.compute(hashKey, (k, v) -> v == null ? dataToday.get(roomId) : v + dataToday.get(roomId));
+            scoredSortedSet.add(score, roomId);
         });
     }
 }
