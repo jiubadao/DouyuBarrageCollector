@@ -4,10 +4,7 @@ import in.odachi.douyubarragecollector.util.LogUtil;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.*;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -132,7 +129,7 @@ class Reactor extends Thread {
                         if (key.isValid() && ops != oldOps) {
                             interestOps(key, ops);
                         }
-                    } catch (IOException e) {
+                    } catch (IOException | RuntimeException e) {
                         EventHandler handler = (EventHandler) key.attachment();
                         logger.warn(e + ", " + handler.toString());
                         reactorManager.closeChannel(key, true);
