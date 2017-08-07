@@ -9,7 +9,6 @@ import in.odachi.douyubarragecollector.util.FormatterUtil;
 import in.odachi.douyubarragecollector.util.LogUtil;
 import in.odachi.douyubarragecollector.util.PacketUtil;
 import in.odachi.douyubarragecollector.util.RedisUtil;
-import javafx.geometry.VPos;
 import org.apache.log4j.Logger;
 import org.redisson.api.RScoredSortedSet;
 
