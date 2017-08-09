@@ -50,6 +50,6 @@ public class TokenizerJob implements Job {
         String keyCache = RedisKeys.DOUYU_ANALYSIS_KEYWORD_MINUTE_PREFIX + size + ":" + roomId;
         RScoredSortedSet<String> cacheMinute = RedisUtil.client.getScoredSortedSet(keyCache);
         cacheMinute.clear();
-        TokenizerCollection.INSTANCE.getSlots(size, roomId).queryTopWords().forEach((k, v) -> cacheMinute.add(v, k));
+        TokenizerCollection.INSTANCE.getSlots(size, roomId).queryTopWords().forEach((entry) -> cacheMinute.add(entry.getValue(), entry.getKey()));
     }
 }

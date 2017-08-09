@@ -4,6 +4,7 @@ import in.odachi.douyubarragecollector.constant.Constants;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 滑动窗口，每5分钟一格
@@ -39,13 +40,12 @@ public class TokenizerSlots {
     /**
      * 查询的结果集
      */
-    public Map<String, Double> queryTopWords() {
+    public Stream<Map.Entry<String, Double>> queryTopWords() {
         return slots.stream()
                 .flatMap(m -> m.entrySet().stream())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Double::sum))
                 .entrySet().stream()
                 .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
-                .limit(Constants.KEYWORD_MAX_COUNT)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+                .limit(Constants.KEYWORD_MAX_COUNT);
     }
 }
