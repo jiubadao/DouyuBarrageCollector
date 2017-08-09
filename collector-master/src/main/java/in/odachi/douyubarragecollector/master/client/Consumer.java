@@ -126,6 +126,7 @@ public class Consumer extends Thread {
                     break;
                 }
             }
+            logger.error(Thread.currentThread().getName() + " has exited.");
         }, "ConsumerWatcher");
         // 启动线程
         watcherThread.start();

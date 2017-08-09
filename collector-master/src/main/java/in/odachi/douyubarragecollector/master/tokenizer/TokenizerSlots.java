@@ -1,9 +1,8 @@
 package in.odachi.douyubarragecollector.master.tokenizer;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import in.odachi.douyubarragecollector.constant.Constants;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -43,6 +42,10 @@ public class TokenizerSlots {
     public Map<String, Double> queryTopWords() {
         return slots.stream()
                 .flatMap(m -> m.entrySet().stream())
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Double::sum));
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Double::sum))
+                .entrySet().stream()
+                .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+                .limit(Constants.KEYWORD_MAX_COUNT)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 }

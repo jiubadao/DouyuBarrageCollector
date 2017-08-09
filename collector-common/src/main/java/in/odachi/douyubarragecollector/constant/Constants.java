@@ -32,6 +32,9 @@ public class Constants {
     // 每个端口限制连接数
     public static final int CONNECTION_LIMIT_PER_HOST = 200;
 
+    // 实时关键词数量
+    public static final int KEYWORD_MAX_COUNT = 100;
+
     // 统计数据保留的历史天数
     public static final int REDIS_DATA_KEEP_DAYS = 30;
 
