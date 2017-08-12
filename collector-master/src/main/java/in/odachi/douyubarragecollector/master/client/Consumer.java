@@ -63,7 +63,7 @@ public class Consumer extends Thread {
                     processedPartCount.incrementAndGet();
                     Ranking.incrementMessage(FormatterUtil.parseInt(msgMap.get("rid")),
                             FormatterUtil.parseInt(msgMap.get("uid")));
-                    Tokenizer.segment(FormatterUtil.parseInt(msgMap.get("rid")), String.valueOf(msgMap.get("txt")));
+                    // Tokenizer.segment(FormatterUtil.parseInt(msgMap.get("rid")), String.valueOf(msgMap.get("txt")));
                 } else if ("dgb".equals(type)) {
                     //  礼物消息
                     processedPartCount.incrementAndGet();

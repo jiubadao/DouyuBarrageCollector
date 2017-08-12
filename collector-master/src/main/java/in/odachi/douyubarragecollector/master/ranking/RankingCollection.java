@@ -180,7 +180,13 @@ public enum RankingCollection {
         Map<Integer, Double> giftPriceMap = new HashMap<>();
         giftTypeMap.keySet().forEach(roomId -> {
             Map<Integer, Integer> typeMap = giftTypeMap.replace(roomId, new ConcurrentHashMap<>());
+
+            String giftTypeDailyKey = RedisKeys.DOUYU_DETAIL_GIFT_PREFIX + roomId + ":" + LocalDate.now().format(dateFormatter);
+            Map<Integer, Integer> giftTypeDailyMap = RedisUtil.client.getMap(giftTypeDailyKey);
+
             typeMap.forEach((giftId, count) -> {
+                giftTypeDailyMap.compute(giftId, (k, v) -> v == null ? count : v + count);
+
                 Map<String, Object> giftMap = LocalCache.INSTANCE.getGift(giftId);
                 if (giftMap.size() <= 0) {
                     // 如果礼物未发现，则先尝试获取礼物

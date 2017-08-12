@@ -60,4 +60,6 @@ public class RedisKeys {
     public static final String DOUYU_RANK_ANCHOR_DGB_PRICE_MINUTE_60 = "douyu:rank:anchor:dgb:price:minute:60";
 
     public static final String DOUYU_ONLINE_ANCHOR_PREFIX = "douyu:online:anchor:";
+
+    public static final String DOUYU_DETAIL_GIFT_PREFIX = "douyu:detail:gift:";
 }
