@@ -35,14 +35,6 @@
                 </includes>
             </resource>
             <resource>
-                <targetPath>${basedir}/target/out</targetPath>
-                <filtering>false</filtering>
-                <directory>${basedir}/out</directory>
-                <includes>
-                    <include>*.sh</include>
-                </includes>
-            </resource>
-            <resource>
                 <targetPath>${basedir}/target</targetPath>
                 <filtering>false</filtering>
                 <directory>${basedir}/src/script</directory>
@@ -69,7 +61,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>in.odachi.in.odachi.douyubarragecollector.main.Main</mainClass>
+                            <mainClass>in.odachi.douyubarragecollector.main.Main</mainClass>
                         </manifest>
                         <manifestEntries>
                             <!-- 配置jar包资源文件目录 -->
