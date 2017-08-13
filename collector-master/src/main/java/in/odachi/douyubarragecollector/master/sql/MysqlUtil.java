@@ -1,4 +1,4 @@
-package in.odachi.douyubarragecollector.sql;
+package in.odachi.douyubarragecollector.master.sql;
 
 import in.odachi.douyubarragecollector.constant.Constants;
 import in.odachi.douyubarragecollector.constant.LocalFileProperties;

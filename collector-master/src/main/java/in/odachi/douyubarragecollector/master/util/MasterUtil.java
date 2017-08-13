@@ -3,7 +3,6 @@ package in.odachi.douyubarragecollector.master.util;
 import in.odachi.douyubarragecollector.constant.Constants;
 import in.odachi.douyubarragecollector.constant.RedisKeys;
 import in.odachi.douyubarragecollector.master.client.LocalCache;
-import in.odachi.douyubarragecollector.sql.MysqlUtil;
 import in.odachi.douyubarragecollector.util.RedisUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;

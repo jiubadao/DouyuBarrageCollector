@@ -4,7 +4,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import in.odachi.douyubarragecollector.constant.Constants;
 import in.odachi.douyubarragecollector.master.util.HttpUtil;
-import in.odachi.douyubarragecollector.sql.MysqlUtil;
+import in.odachi.douyubarragecollector.master.sql.MysqlUtil;
 import in.odachi.douyubarragecollector.util.FormatterUtil;
 import org.apache.log4j.Logger;
 
