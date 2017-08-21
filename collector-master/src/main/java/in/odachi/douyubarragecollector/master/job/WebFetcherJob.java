@@ -4,7 +4,6 @@ import com.jcabi.aspects.Loggable;
 import in.odachi.douyubarragecollector.constant.Constants;
 import in.odachi.douyubarragecollector.constant.RedisKeys;
 import in.odachi.douyubarragecollector.master.client.WebFetcher;
-import in.odachi.douyubarragecollector.master.client.LocalCache;
 import in.odachi.douyubarragecollector.master.util.MasterUtil;
 import in.odachi.douyubarragecollector.util.FormatterUtil;
 import in.odachi.douyubarragecollector.util.RedisUtil;
@@ -32,16 +31,25 @@ public class WebFetcherJob implements Job {
 
     private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(Constants.DATETIME_PATTERN);
 
+    private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(Constants.DATE_PATTERN);
+
     @Override
     @Loggable
     public void execute(JobExecutionContext context) throws JobExecutionException {
         // 统一每个批次的抓取时间
         String dateTime = LocalDateTime.now().format(dateTimeFormatter);
+        String dateDate = LocalDateTime.now().format(dateFormatter);
         List<Map<String, Object>> roomList = WebFetcher.fetchRoom();
         Set<Integer> onlineRoomIds = new HashSet<>(roomList.size());
         roomList.forEach(room -> {
+            Integer roomId = FormatterUtil.parseInt(room.get("room_id"));
             room.put("date_time", dateTime);
-            onlineRoomIds.add(FormatterUtil.parseInt(room.get("room_id")));
+            onlineRoomIds.add(roomId);
+            // 统计每日人气峰值
+            Map<String, Integer> popularityMap = RedisUtil.client.getMap(
+                    RedisKeys.DOUYU_POPULARITY_PEAK_ANCHOR_PREFIX + roomId);
+            Integer online = FormatterUtil.parseInt(room.get("online"));
+            popularityMap.compute(dateDate, (k, v) -> v == null ? online : Math.max(v, online));
         });
 
         Set<Integer> addedRoomIds = new HashSet<>(onlineRoomIds);

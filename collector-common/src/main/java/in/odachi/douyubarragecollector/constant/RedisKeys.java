@@ -61,5 +61,7 @@ public class RedisKeys {
 
     public static final String DOUYU_ONLINE_ANCHOR_PREFIX = "douyu:online:anchor:";
 
+    public static final String DOUYU_POPULARITY_PEAK_ANCHOR_PREFIX  = "douyu:popularity:peak:anchor:";
+
     public static final String DOUYU_DETAIL_GIFT_PREFIX = "douyu:detail:gift:";
 }

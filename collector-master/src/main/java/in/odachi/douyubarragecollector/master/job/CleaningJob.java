@@ -35,10 +35,10 @@ public class CleaningJob implements Job {
         // 删除在线时长统计历史数据
         String historyDate = LocalDate.now().minusDays(31).format(dateFormatter);
         RedisUtil.client.getKeys().getKeysByPattern(RedisKeys.DOUYU_ONLINE_ANCHOR_PREFIX + "*")
-                .forEach(key -> {
-                    Map<String, Double> onlineMap = RedisUtil.client.getMap(key);
-                    onlineMap.remove(historyDate);
-                });
+                .forEach(key -> RedisUtil.client.getMap(key).remove(historyDate));
+        // 删除人气峰值统计历史数据
+        RedisUtil.client.getKeys().getKeysByPattern(RedisKeys.DOUYU_POPULARITY_PEAK_ANCHOR_PREFIX + "*")
+                .forEach(key -> RedisUtil.client.getMap(key).remove(historyDate));
         logger.info("Drop keys on date: " + historyDate);
     }
 }
